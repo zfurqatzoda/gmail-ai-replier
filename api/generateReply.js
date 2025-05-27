@@ -1,6 +1,4 @@
-// /api/generateReply.js
-
-import { buffer } from 'micro';
+import { buffer } from "micro";
 
 export const config = {
   api: {
@@ -9,10 +7,14 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  try {
-    const rawBody = await buffer(req);
-    const { message } = JSON.parse(rawBody.toString());
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
+  const rawBody = await buffer(req);
+  const { message } = JSON.parse(rawBody.toString());
+
+  try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -20,12 +22,11 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4", // or "gpt-3.5-turbo"
         messages: [
           {
             role: "system",
-            content:
-              "You are a helpful assistant that writes professional, friendly email replies.",
+            content: "You are a helpful assistant that writes professional, friendly email replies.",
           },
           { role: "user", content: message },
         ],
@@ -33,11 +34,15 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
 
+    if (!data.choices || !data.choices[0]) {
+      throw new Error("Invalid response from OpenAI");
+    }
+
+    const reply = data.choices[0].message.content;
     res.status(200).json({ reply });
-  } catch (err) {
-    console.error("🔥 Error:", err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  } catch (error) {
+    console.error("❌ Server error:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 }
