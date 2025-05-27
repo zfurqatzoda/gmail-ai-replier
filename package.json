@@ -12,5 +12,13 @@
   "type": "commonjs",
   "dependencies": {
     "raw-body": "^3.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zfurqatzoda/gmail-ai-replier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zfurqatzoda/gmail-ai-replier/issues"
+  },
+  "homepage": "https://github.com/zfurqatzoda/gmail-ai-replier#readme"
 }
