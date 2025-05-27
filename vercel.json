@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "public": true,
+  "routes": [
+    {
+      "src": "/api/generateReply",
+      "dest": "/api/generateReply.js",
+      "methods": ["POST", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      },
+      "continue": true
+    }
+  ],
+  "functions": {
+    "api/generateReply.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
