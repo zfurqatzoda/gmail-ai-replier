@@ -1,14 +1,18 @@
-// api/generateReply.js
+// /api/generateReply.js
 
-import getRawBody from "raw-body";
+import { buffer } from 'micro';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(req, res) {
   try {
-    // Parse raw body
-    const rawBody = await getRawBody(req);
+    const rawBody = await buffer(req);
     const { message } = JSON.parse(rawBody.toString());
 
-    // Call OpenAI API
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -20,7 +24,8 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that writes professional, friendly email replies.",
+            content:
+              "You are a helpful assistant that writes professional, friendly email replies.",
           },
           { role: "user", content: message },
         ],
@@ -30,13 +35,9 @@ export default async function handler(req, res) {
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content;
 
-    if (!reply) {
-      return res.status(500).json({ error: "No reply returned from OpenAI" });
-    }
-
-    return res.status(200).json({ reply });
-  } catch (error) {
-    console.error("❌ Server error:", error);
-    return res.status(500).json({ error: "Server crashed", details: error.message });
+    res.status(200).json({ reply });
+  } catch (err) {
+    console.error("🔥 Error:", err);
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }
